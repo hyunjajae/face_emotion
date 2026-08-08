@@ -35,17 +35,26 @@ body[data-panel="side"] .panel{
   padding:1em 1.1em 1.1em; border-top:1px solid var(--line);
 }
 
-/* 세로 모드에서는 항상 아래로 분리한다 (웹캠 띠가 얇아서 겹치면 얼굴을 가림).
-   남는 높이는 위아래 균등 여백이 되도록 가운데 정렬 → 빈 공간이 의도적으로 보인다 */
-body[data-layout="portrait"] .panel{
-  position:static; background:var(--stage);
-  padding:1.1em 1.2em; border-top:1px solid var(--line);
-  text-shadow:none;
-  align-content:center; display:grid;
+/* ── 얼굴 옆에 따라다니는 모드 ──
+   패널을 웹캠 칸 안에서 절대배치하고, 위치는 overlay.js가 매 프레임 넘겨주는
+   얼굴 박스 좌표를 받아 main.js가 transform으로 옮긴다.
+   배경판 없이 글자만 뜨므로 스크림 대신 그림자로만 가독성을 확보한다. */
+body[data-panel="follow"] .cam-area{ grid-template-rows:100%; }
+body[data-panel="follow"] .panel{
+  position:absolute; left:0; top:0; width:40%;
+  /* 얼굴 옆 좁은 자리에 들어가야 하므로 기본 크기의 62%로 */
+  font-size:clamp(9px, calc(var(--panel-scale) * 0.62 * 1cqw), 26px);
+  --labw:3.4em;
+  padding:.5em .6em .55em;
+  background:none;
+  text-shadow:0 1px 3px rgba(0,0,0,.92);
+  opacity:0; transition:opacity 160ms linear;   /* 얼굴이 없으면 사라진다 */
+  pointer-events:none;
+  will-change:transform;
 }
-body[data-layout="portrait"] .bar{ background:var(--track); }
-body[data-layout="portrait"] .fill{ background:var(--fill); }
-body[data-layout="portrait"] .row.top .fill{ background:var(--accent); }
+body[data-lang="en"][data-panel="follow"] .panel{ --labw:6.4em; }
+body[data-panel="follow"] .status{ margin-bottom:.6em; }
+body[data-panel="follow"] .rows{ gap:.36em; }
 
 /* ── 상태줄 ── */
 .status{
@@ -84,10 +93,13 @@ body[data-lang="en"] .lab{ font-family:var(--mono); font-size:.76em; letter-spac
 }
 .row.top .fill{ background:var(--accent); }
 
-/* 겹치기 모드에서는 밝은 영상 위에서도 보이게 대비를 올린다 */
-body[data-panel="overlay"] .bar{ background:rgba(0,0,0,.62); }
-body[data-panel="overlay"] .fill{ background:rgba(255,255,255,.68); }
-body[data-panel="overlay"] .row.top .fill{ background:var(--accent); }
+/* 웹캠 위에 얹는 모드들은 밝은 배경에서도 보이게 대비를 올린다 */
+body[data-panel="overlay"] .bar,
+body[data-panel="follow"] .bar{ background:rgba(0,0,0,.62); }
+body[data-panel="overlay"] .fill,
+body[data-panel="follow"] .fill{ background:rgba(255,255,255,.68); }
+body[data-panel="overlay"] .row.top .fill,
+body[data-panel="follow"] .row.top .fill{ background:var(--accent); }
 
 .val{
   font-family:var(--mono);            /* 숫자는 반드시 고정폭 */

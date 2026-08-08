@@ -11,6 +11,7 @@ export class BoxOverlay {
     this.video = videoEl;
     this.container = container;
 
+    this.onBox = null;                        // 매 프레임 박스 위치를 알려주는 콜백
     this.target = null;                       // 정규화 박스 {x,y,w,h}
     this.cur = { x:0, y:0, w:0, h:0, a:0 };   // 화면 좌표 + 알파
     this.cw = 0; this.ch = 0;
@@ -97,13 +98,26 @@ export class BoxOverlay {
     const ctx = this.ctx, c = this.cur;
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, this.cw, this.ch);
-    if (c.a < 0.01 || c.w <= 0) return;
 
-    ctx.globalAlpha = c.a;
-    ctx.strokeStyle = this.color;
-    ctx.lineWidth = 1.5;
-    // 0.5px 보정으로 선이 흐려지지 않게
-    ctx.strokeRect(Math.round(c.x) + .5, Math.round(c.y) + .5, Math.round(c.w), Math.round(c.h));
-    ctx.globalAlpha = 1;
+    const visible = c.a >= 0.01 && c.w > 0;
+    if (visible) {
+      ctx.globalAlpha = c.a;
+      ctx.strokeStyle = this.color;
+      ctx.lineWidth = 1.5;
+      // 0.5px 보정으로 선이 흐려지지 않게
+      ctx.strokeRect(Math.round(c.x) + .5, Math.round(c.y) + .5, Math.round(c.w), Math.round(c.h));
+      ctx.globalAlpha = 1;
+    }
+
+    // 얼굴 옆 패널이 따라올 수 있게 박스 위치를 넘겨준다.
+    // 캔버스가 CSS로 좌우 반전돼 있으므로 화면에 실제로 보이는 x는 뒤집어서 계산한다.
+    if (this.onBox) {
+      this.onBox(visible ? {
+        left: this.cw - (c.x + c.w),
+        right: this.cw - c.x,
+        top: c.y, height: c.h, alpha: c.a,
+        cw: this.cw, ch: this.ch,
+      } : null);
+    }
   }
 }

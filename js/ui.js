@@ -131,8 +131,10 @@ export function initUI(app) {
     s.layout = s.layout === 'landscape' ? 'portrait' : 'landscape';
     applySettings(app);
   };
+  const PANEL_MODES = ['overlay', 'follow', 'side'];
   const togglePanelPos = () => {
-    s.panel = s.panel === 'overlay' ? 'side' : 'overlay';
+    const i = PANEL_MODES.indexOf(s.panel);
+    s.panel = PANEL_MODES[(i + 1) % PANEL_MODES.length];
     applySettings(app);
   };
   const toggleLang = () => {

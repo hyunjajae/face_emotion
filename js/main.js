@@ -32,9 +32,41 @@ let hasFace = false;
 let lastPush = 0;
 let displayTimer = null;
 
+const panelEl = $('panel');
 const panel = new Panel($('rows'), $('status'));
 const overlay = new BoxOverlay($('overlay'), camVideo, camView);
 const smoother = new Smoother(0);
+
+/* ── 얼굴 옆 따라다니기 모드 ──
+   매 프레임 offsetWidth를 읽으면 강제 레이아웃이 생기므로 값을 캐시하되,
+   비어 있거나 30프레임(약 0.5초)마다 한 번씩만 다시 잰다. */
+let panelW = 0, panelH = 0, boxFrame = 0;
+
+overlay.onBox = (b) => {
+  if (settings.panel !== 'follow') return;
+  if (!b) { panelEl.style.opacity = '0'; return; }
+
+  if (!panelW || !panelH || (boxFrame++ % 30) === 0) {
+    panelW = panelEl.offsetWidth;
+    panelH = panelEl.offsetHeight;
+  }
+
+  const gap = Math.max(8, b.cw * 0.02);
+  const roomRight = b.cw - (b.right + gap);
+  const roomLeft  = b.left - gap;
+
+  // 오른쪽 우선. 안 들어가면 왼쪽. 둘 다 좁으면 그나마 넓은 쪽 끝에 붙인다
+  let x;
+  if (roomRight >= panelW)     x = b.right + gap;
+  else if (roomLeft >= panelW) x = b.left - gap - panelW;
+  else                         x = roomRight >= roomLeft ? b.cw - panelW : 0;
+
+  // 세로는 박스 위쪽에 맞추되 화면 밖으로 나가지 않게
+  const y = Math.max(0, Math.min(b.ch - panelH, b.top));
+
+  panelEl.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+  panelEl.style.opacity = String(b.alpha);
+};
 
 const detector = new Detector({
   onResult: (res) => {
@@ -77,6 +109,11 @@ const app = { settings, panel, detector, overlay, source, restartCamera, applyTu
 
 /** 평활 강도와 화면 갱신 주기를 설정값에 맞춰 다시 건다 */
 function applyTuning() {
+  // 따라다니기 모드가 아니면 인라인으로 밀어놨던 위치·투명도를 되돌린다
+  if (settings.panel !== 'follow') {
+    panelEl.style.transform = '';
+    panelEl.style.opacity = '';
+  }
   const L = SMOOTH_LEVELS[settings.smooth] || SMOOTH_LEVELS.slow;
   smoother.setTau(L.tau);
   // 게이지가 갱신 간격 동안 끊기지 않고 이어서 움직이도록 트랜지션 길이를 맞춘다
