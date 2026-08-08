@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/panel.css">
 </head>
-<body data-panel="overlay" data-pscale="lg" data-lang="ko" data-fit="cover" data-camw="mid">
+<body data-layout="landscape" data-panel="overlay" data-pscale="lg" data-lang="ko" data-fit="cover" data-camw="mid">
 
 <!-- ───────── 상단 컨트롤 바 (녹화 모드에서 통째로 숨김) ───────── -->
 <header class="chrome" id="topbar">
@@ -20,6 +20,7 @@
   </div>
   <div class="grp right">
     <select id="camSelect" class="sel" title="카메라 선택"></select>
+    <button id="btnLayout" class="btn">세로</button>
     <button id="btnRec" class="btn">녹화 모드</button>
     <button id="btnSet" class="btn">설정</button>
   </div>
@@ -145,7 +146,7 @@
   </div>
 
   <div class="keys">
-    <b>O</b> 영상 열기 · <b>R</b> 녹화 모드 · <b>P</b> 패널 위치<br>
+    <b>O</b> 영상 열기 · <b>R</b> 녹화 모드 · <b>V</b> 가로/세로 · <b>P</b> 패널 위치<br>
     <b>L</b> 라벨 한/영 · <b>Space</b> 재생·정지 · <b>↑↓</b> 볼륨 · <b>Esc</b> 닫기
   </div>
   <div class="note">모든 처리는 이 브라우저 안에서만 이루어집니다. 영상과 웹캠 화면은 어디로도 전송되거나 저장되지 않습니다.</div>

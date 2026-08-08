@@ -35,6 +35,18 @@ body[data-panel="side"] .panel{
   padding:1em 1.1em 1.1em; border-top:1px solid var(--line);
 }
 
+/* 세로 모드에서는 항상 아래로 분리한다 (웹캠 띠가 얇아서 겹치면 얼굴을 가림).
+   남는 높이는 위아래 균등 여백이 되도록 가운데 정렬 → 빈 공간이 의도적으로 보인다 */
+body[data-layout="portrait"] .panel{
+  position:static; background:var(--stage);
+  padding:1.1em 1.2em; border-top:1px solid var(--line);
+  text-shadow:none;
+  align-content:center; display:grid;
+}
+body[data-layout="portrait"] .bar{ background:var(--track); }
+body[data-layout="portrait"] .fill{ background:var(--fill); }
+body[data-layout="portrait"] .row.top .fill{ background:var(--accent); }
+
 /* ── 상태줄 ── */
 .status{
   display:flex; align-items:center; gap:.5em;

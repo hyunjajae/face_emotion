@@ -29,7 +29,8 @@ export const DEFAULTS = {
   smooth: 'slow',    // 표시 수치가 얼마나 진득하게 움직일지 (tune.js SMOOTH_LEVELS)
   cal: 'mid',        // 감정 쏠림 보정 세기 (tune.js CAL_LEVELS)
   lang: 'ko',
-  panel: 'overlay',  // overlay | side
+  layout: 'landscape', // landscape(가로 16:9) | portrait(세로 9:16)
+  panel: 'overlay',  // overlay | side (세로 모드에서는 항상 아래로 분리)
   pscale: 'lg',      // 수치 크기 sm | md | lg | xl
   fit: 'cover',      // 웹캠 채우기 | 전체 보기
   camw: 'mid',       // 웹캠 칸 가로세로비

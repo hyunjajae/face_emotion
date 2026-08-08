@@ -6,6 +6,7 @@ export function applySettings(app) {
   const s = app.settings;
   const b = document.body;
   b.dataset.lang   = s.lang;
+  b.dataset.layout = s.layout;
   b.dataset.panel  = s.panel;
   b.dataset.pscale = s.pscale;
   b.dataset.fit    = s.fit;
@@ -25,6 +26,9 @@ export function applySettings(app) {
       btn.classList.toggle('on', String(s[key]) === btn.dataset.v);
     });
   });
+
+  // 버튼에는 "지금 누르면 바뀔 방향"을 적는다
+  document.getElementById('btnLayout').textContent = s.layout === 'landscape' ? '세로' : '가로';
 
   saveSettings(s);
 }
@@ -122,7 +126,11 @@ export function initUI(app) {
     applySettings(app);
   });
 
-  // ── 패널 위치 / 녹화 모드 ──────────────────
+  // ── 레이아웃 / 패널 위치 / 녹화 모드 ───────
+  const toggleLayout = () => {
+    s.layout = s.layout === 'landscape' ? 'portrait' : 'landscape';
+    applySettings(app);
+  };
   const togglePanelPos = () => {
     s.panel = s.panel === 'overlay' ? 'side' : 'overlay';
     applySettings(app);
@@ -136,6 +144,7 @@ export function initUI(app) {
     if (on) toggleSettings(false);
   };
 
+  $('btnLayout').addEventListener('click', toggleLayout);
   $('btnRec').addEventListener('click', () => setRecord(true));
 
   // ── 단축키 ─────────────────────────────────
@@ -152,6 +161,7 @@ export function initUI(app) {
     switch (e.key.toLowerCase()) {
       case 'o': openDlg(); break;
       case 'r': setRecord(!document.body.classList.contains('record')); break;
+      case 'v': toggleLayout(); break;
       case 'p': togglePanelPos(); break;
       case 'l': toggleLang(); break;
       case ' ': e.preventDefault(); app.source.togglePlay(); break;
