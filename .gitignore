@@ -1,0 +1,9 @@
+# 윈도우 / 에디터가 만드는 부스러기 파일
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+.vscode/
+
+# 테스트용 임시 폴더
+_smoke/

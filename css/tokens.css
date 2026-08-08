@@ -1,0 +1,82 @@
+/* ── 폰트: 숫자가 흔들리지 않게 고정폭 서체를 직접 들고 있음 ── */
+@font-face{
+  font-family:'JetBrains Mono';
+  src:url('../assets/fonts/jetbrains-mono-400.woff2') format('woff2');
+  font-weight:400; font-style:normal; font-display:swap;
+}
+@font-face{
+  font-family:'JetBrains Mono';
+  src:url('../assets/fonts/jetbrains-mono-500.woff2') format('woff2');
+  font-weight:500; font-style:normal; font-display:swap;
+}
+
+:root{
+  /* 무채색 팔레트 + 강조색 딱 1개 */
+  --bg:#000;              /* 무대 바깥 (녹화 시 잘라내기 쉬우라고 순수 검정) */
+  --stage:#0a0a0b;        /* 무대 바닥 */
+  --fg:rgba(255,255,255,.92);
+  --fg-2:rgba(255,255,255,.58);
+  --fg-3:rgba(255,255,255,.34);
+  --accent:#ffb020;
+
+  --track:rgba(255,255,255,.07);   /* 게이지 빈 부분 */
+  --fill:rgba(255,255,255,.40);    /* 게이지 기본 채움 */
+
+  /* 조작 UI 전용 색: 패널보다 확실히 잘 보이게 한 단계 밝다 */
+  --ui-fg:rgba(255,255,255,.82);
+  --ui-dim:rgba(255,255,255,.5);
+  --ui-line:rgba(255,255,255,.16);
+  --ui-bg:#0e0e11;
+  --ui-hover:rgba(255,255,255,.07);
+
+  /* JetBrains Mono에는 한글이 없다. 마지막에 맑은 고딕을 넣어두지 않으면
+     한글만 윈도우 기본 monospace(굴림체)로 떨어져서 픽셀처럼 보인다. */
+  --mono:'JetBrains Mono', ui-monospace, Consolas, 'Malgun Gothic', sans-serif;
+  --kr:'Pretendard','Malgun Gothic','Apple SD Gothic Neo', system-ui, sans-serif;
+
+  --t:120ms linear;       /* UI 반응 트랜지션: 짧고 선형 */
+  --tv:120ms linear;      /* 게이지 값 트랜지션. 화면 갱신 주기에 맞춰 JS가 바꾼다
+                             (갱신 간격보다 짧으면 움직이다 멈추는 계단처럼 보임) */
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; height:100%; }
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--kr);          /* 조작 UI는 전부 한글 본문 폰트 */
+  font-size:13px;
+  -webkit-font-smoothing:antialiased;
+  color-scheme:dark;
+  overflow:hidden;
+}
+button,input,select{ font:inherit; color:inherit; }
+::selection{ background:var(--accent); color:#000; }
+
+/* ── 컨트롤 공통 ── */
+.btn{
+  background:transparent; border:1px solid var(--ui-line); border-radius:3px;
+  color:var(--ui-fg); padding:7px 13px; font-size:12.5px; line-height:1;
+  cursor:pointer; white-space:nowrap;
+  transition:color var(--t), border-color var(--t), background var(--t);
+}
+.btn:hover{ background:var(--ui-hover); border-color:rgba(255,255,255,.3); }
+.btn:active{ background:rgba(255,255,255,.11); }
+.btn.on{ color:#000; background:var(--accent); border-color:var(--accent); }
+.btn.primary{ color:var(--accent); border-color:rgba(255,176,32,.45); }
+.btn.primary:hover{ background:rgba(255,176,32,.12); border-color:var(--accent); }
+.btn.wide{ width:100%; padding:11px 13px; }
+
+.sel{
+  background:var(--ui-bg); border:1px solid var(--ui-line); border-radius:3px;
+  color:var(--ui-fg); padding:7px 8px; font-size:12.5px; max-width:200px; cursor:pointer;
+}
+
+.inp{
+  background:#141418; border:1px solid var(--ui-line); border-radius:3px;
+  color:var(--fg); padding:10px 11px; font-size:13px; width:100%; outline:none;
+  font-family:var(--mono);
+  transition:border-color var(--t);
+}
+.inp::placeholder{ color:var(--fg-3); }
+.inp:focus{ border-color:var(--accent); }

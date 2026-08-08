@@ -1,0 +1,78 @@
+/* ─────────────────────────────────────────────
+   감정 수치 패널
+   웹캠 칸 너비에 맞춰 크기가 따라가도록 컨테이너 쿼리(cqw) 사용
+   → 가로 16:9든 세로 9:16이든 패널이 같은 비율로 보인다
+   ───────────────────────────────────────────── */
+.cam-area{ container-type:inline-size; }
+
+.panel{
+  /* 웹캠 칸 너비의 2.6% 를 기준 글자 크기로. 1080 세로 녹화 기준 패널이 화면의 약 22%를 차지한다 */
+  font-size:clamp(10px, 2.6cqw, 20px);
+  --labw:4.4em;                       /* 라벨 칸 고정폭 → 게이지 시작점이 안 흔들림 */
+}
+body[data-lang="en"] .panel{ --labw:7.2em; }
+
+/* 웹캠 위에 겹치는 기본 모드 */
+body[data-panel="overlay"] .panel{
+  position:absolute; left:0; right:0; bottom:0;
+  padding:1.15em 1.2em 1.2em;
+  /* 카드가 아니라 자막용 스크림. 아래로 갈수록 어두워지기만 한다 */
+  background:linear-gradient(to top,
+    rgba(0,0,0,.88) 0%, rgba(0,0,0,.74) 42%, rgba(0,0,0,.40) 76%, rgba(0,0,0,0) 100%);
+  text-shadow:0 1px 3px rgba(0,0,0,.85);
+}
+/* 아래로 분리하는 모드 */
+body[data-panel="side"] .cam-area{ grid-template-rows:1fr auto; }
+body[data-panel="side"] .panel{
+  position:static; background:var(--stage);
+  padding:1em 1.1em 1.1em; border-top:1px solid var(--line);
+}
+
+/* ── 상태줄 ── */
+.status{
+  display:flex; align-items:center; gap:.5em;
+  font-family:var(--mono);            /* 계측 readout은 고정폭으로 */
+  color:var(--fg-3); font-size:.78em; letter-spacing:.04em;
+  margin-bottom:.9em; white-space:nowrap;
+}
+.status .dot{
+  width:.5em; height:.5em; flex:none; background:var(--fg-3);
+  transition:background var(--t);
+}
+.status.live .dot{ background:var(--accent); }
+.status .sep{ opacity:.35; }
+body[data-status="0"] .status{ display:none; }
+
+/* ── 7줄 게이지 ── */
+.rows{ list-style:none; margin:0; padding:0; display:grid; gap:.5em; }
+.row{
+  display:grid; grid-template-columns:var(--labw) 1fr auto auto;
+  align-items:center; gap:.7em;
+}
+.lab{
+  font-family:var(--kr); font-size:.8em; color:var(--fg-2);
+  letter-spacing:.02em; white-space:nowrap; transition:color var(--t);
+}
+body[data-lang="en"] .lab{ font-family:var(--mono); font-size:.76em; letter-spacing:.06em; }
+.row.top .lab{ color:var(--fg); }
+
+.bar{ position:relative; height:clamp(2px,.22em,4px); background:var(--track); overflow:hidden; }
+.fill{
+  position:absolute; left:0; top:0; bottom:0; width:0;
+  background:var(--fill);
+  transition:width var(--tv), background var(--tv);   /* 갱신 주기에 맞춘 선형 이동 */
+}
+.row.top .fill{ background:var(--accent); }
+
+/* 겹치기 모드에서는 밝은 영상 위에서도 보이게 대비를 올린다 */
+body[data-panel="overlay"] .bar{ background:rgba(0,0,0,.5); }
+body[data-panel="overlay"] .fill{ background:rgba(255,255,255,.55); }
+body[data-panel="overlay"] .row.top .fill{ background:var(--accent); }
+
+.val{
+  font-family:var(--mono);            /* 숫자는 반드시 고정폭 */
+  font-size:.88em; font-weight:500; font-variant-numeric:tabular-nums;
+  color:var(--fg-2); min-width:3.7em; text-align:right; transition:color var(--t);
+}
+.row.top .val{ color:var(--fg); }
+.pct{ font-family:var(--mono); font-size:.7em; color:var(--fg-3); }

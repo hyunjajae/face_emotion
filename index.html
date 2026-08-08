@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 유튜브 임베드 오류 153 방지: 출처(Referer)를 유튜브에 전달해야 함 -->
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>표정 분석</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/panel.css">
+</head>
+<body data-panel="overlay" data-lang="ko" data-fit="cover" data-camw="mid">
+
+<!-- ───────── 상단 컨트롤 바 (녹화 모드에서 통째로 숨김) ───────── -->
+<header class="chrome" id="topbar">
+  <div class="grp">
+    <button id="btnOpen" class="btn primary">영상 열기</button>
+    <span class="srclab" id="srcLabel">열린 영상 없음</span>
+  </div>
+  <div class="grp right">
+    <select id="camSelect" class="sel" title="카메라 선택"></select>
+    <button id="btnRec" class="btn">녹화 모드</button>
+    <button id="btnSet" class="btn">설정</button>
+  </div>
+</header>
+
+<!-- ───────── 무대: 여기가 화면 녹화 대상 영역 ───────── -->
+<main class="stagewrap">
+  <div class="stage" id="stage">
+
+    <!-- 영상 -->
+    <section class="video-area">
+      <div class="video-frame" id="videoFrame">
+        <div id="ytPlayer"></div>
+        <video id="localVideo" controls playsinline></video>
+        <button class="video-msg" id="videoMsg" type="button">
+          <span class="big">눌러서 영상 열기</span>
+          <span class="sub">유튜브 주소 붙여넣기 · 영상 파일 고르기 · 여기에 파일 끌어놓기</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 웹캠 + 감정 패널 -->
+    <section class="cam-area" id="camArea">
+      <div class="cam-view" id="camView">
+        <video id="cam" autoplay playsinline muted></video>
+        <canvas id="overlay"></canvas>
+        <div class="cam-msg" id="camMsg" hidden></div>
+      </div>
+
+      <div class="panel" id="panel">
+        <div class="status" id="status">
+          <i class="dot" id="stDot"></i>
+          <span id="stState">모델 로딩 중</span>
+          <span class="sep">·</span><span id="stHz">--.- hz</span>
+          <span class="sep">·</span><span id="stMs">-- ms</span>
+          <span class="sep">·</span><span id="stBack">--</span>
+          <span class="sep">·</span><span id="stCal">cal --</span>
+        </div>
+        <ul class="rows" id="rows"></ul>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- ───────── 영상 열기 팝업 ───────── -->
+<dialog class="modal" id="srcDialog">
+  <div class="modal-in">
+    <div class="modal-head">영상 열기</div>
+
+    <label class="modal-lab" for="ytInput">유튜브 주소 또는 영상 ID</label>
+    <div class="modal-row">
+      <input id="ytInput" class="inp" type="text" spellcheck="false" autocomplete="off"
+             placeholder="https://youtu.be/...">
+      <button id="btnLoad" class="btn primary" type="button">재생</button>
+    </div>
+
+    <div class="modal-or">또는</div>
+    <button id="btnFile" class="btn wide" type="button">컴퓨터에서 영상 파일 고르기</button>
+    <input id="fileInput" type="file" accept="video/*" hidden>
+
+    <div class="modal-hint">임베드가 막힌 영상은 파일로 열면 됩니다. 영상 화면에 파일을 끌어다 놓아도 열립니다.</div>
+    <div class="modal-foot"><button id="btnCloseDlg" class="btn" type="button">닫기</button></div>
+  </div>
+</dialog>
+
+<!-- ───────── 설정 서랍 ───────── -->
+<aside class="chrome setbox" id="settings" hidden>
+  <div class="set-head">설정</div>
+
+  <div class="set-row"><span class="set-lab">반응 속도</span>
+    <div class="seg" id="segSmooth" data-key="smooth">
+      <button data-v="off">즉각</button><button data-v="mid">보통</button><button data-v="slow">느리게</button><button data-v="vslow">아주 느리게</button>
+    </div>
+  </div>
+  <div class="set-row"><span class="set-lab">감정 보정</span>
+    <div class="seg" id="segCal" data-key="cal">
+      <button data-v="off">끔</button><button data-v="low">약</button><button data-v="mid">중</button><button data-v="high">강</button>
+    </div>
+  </div>
+  <div class="set-row"><span class="set-lab">추론 주기</span>
+    <div class="seg" id="segHz" data-key="hz">
+      <button data-v="5">5</button><button data-v="10">10</button><button data-v="15">15</button><button data-v="30">30</button><span class="unit">hz</span>
+    </div>
+  </div>
+  <div class="set-row"><span class="set-lab">감지 입력</span>
+    <div class="seg" id="segSize" data-key="inputSize">
+      <button data-v="160">160</button><button data-v="224">224</button><button data-v="320">320</button><span class="unit">px</span>
+    </div>
+  </div>
+  <div class="set-row"><span class="set-lab">라벨</span>
+    <div class="seg" id="segLang" data-key="lang">
+      <button data-v="ko">한국어</button><button data-v="en">English</button>
+    </div>
+  </div>
+  <div class="set-row"><span class="set-lab">패널 위치</span>
+    <div class="seg" id="segPanel" data-key="panel">
+      <button data-v="overlay">웹캠 위</button><button data-v="side">아래 분리</button>
+    </div>
+  </div>
+  <div class="set-row"><span class="set-lab">웹캠 폭</span>
+    <div class="seg" id="segCamw" data-key="camw">
+      <button data-v="narrow">좁게</button><button data-v="mid">보통</button><button data-v="wide">넓게</button>
+    </div>
+  </div>
+  <div class="set-row"><span class="set-lab">웹캠 맞춤</span>
+    <div class="seg" id="segFit" data-key="fit">
+      <button data-v="cover">채우기</button><button data-v="contain">전체 보기</button>
+    </div>
+  </div>
+  <div class="set-row"><span class="set-lab">상태줄</span>
+    <div class="seg" id="segStatus" data-key="showStatus">
+      <button data-v="1">표시</button><button data-v="0">숨김</button>
+    </div>
+  </div>
+  <div class="set-row"><span class="set-lab">저사양</span>
+    <button class="btn" id="btnLow">5 hz · 160 px 적용</button>
+  </div>
+
+  <div class="keys">
+    <b>O</b> 영상 열기 · <b>R</b> 녹화 모드 · <b>P</b> 패널 위치<br>
+    <b>L</b> 라벨 한/영 · <b>Space</b> 재생·정지 · <b>↑↓</b> 볼륨 · <b>Esc</b> 닫기
+  </div>
+  <div class="note">모든 처리는 이 브라우저 안에서만 이루어집니다. 영상과 웹캠 화면은 어디로도 전송되거나 저장되지 않습니다.</div>
+</aside>
+
+<!-- face-api는 UMD 번들이라 일반 script로 먼저 로드(모듈보다 먼저 실행됨) -->
+<script src="vendor/face-api.min.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
