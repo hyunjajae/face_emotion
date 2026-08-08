@@ -4,6 +4,12 @@
 // (계측기처럼 채널 위치가 항상 같아야 하므로 값 크기순 정렬도 하지 않음)
 export const EXPR_KEYS = ['neutral', 'happy', 'sad', 'angry', 'fearful', 'disgusted', 'surprised'];
 
+// 화면에서 뺀 감정. 모델은 계속 7종을 계산하지만 혐오·두려움은 다른 감정과 잘 구분되지 않아
+// (학습 표본도 가장 적다) 오히려 화면을 어지럽혀서 표시에서 제외했다.
+// 뺀 몫은 버리지 않고, 남은 5종을 다시 정규화해서 합계가 100%가 되게 한다.
+export const HIDDEN_KEYS = ['fearful', 'disgusted'];
+export const SHOWN_KEYS = EXPR_KEYS.filter(k => !HIDDEN_KEYS.includes(k));
+
 // 표시용 이름. 순서와 판정은 모델 그대로이고, 이름만 옮긴 것.
 export const LABELS = {
   ko: { neutral:'무표정', happy:'행복', sad:'슬픔', angry:'분노', fearful:'두려움', disgusted:'혐오', surprised:'놀람' },

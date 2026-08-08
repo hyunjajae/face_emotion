@@ -1,6 +1,6 @@
 // 감정 수치 패널 (7줄 게이지 + 상태줄)
 
-import { EXPR_KEYS, LABELS, STATE_TEXT } from './config.js';
+import { SHOWN_KEYS, LABELS, STATE_TEXT } from './config.js';
 
 // 최고값 강조가 두 감정 사이에서 깜빡이지 않도록, 이만큼 앞서야 자리를 넘겨준다
 const TOP_MARGIN = 0.03;
@@ -34,7 +34,7 @@ export class Panel {
 
   _build() {
     this.rowsEl.innerHTML = '';
-    for (const k of EXPR_KEYS) {
+    for (const k of SHOWN_KEYS) {
       const li = document.createElement('li');
       li.className = 'row';
       li.dataset.k = k;
@@ -50,7 +50,7 @@ export class Panel {
 
   setLang(lang) {
     this.lang = lang === 'en' ? 'en' : 'ko';
-    for (const k of EXPR_KEYS) this.rows[k].lab.textContent = LABELS[this.lang][k];
+    for (const k of SHOWN_KEYS) this.rows[k].lab.textContent = LABELS[this.lang][k];
     this._paintState();
     this._paintCal();
   }
@@ -60,7 +60,7 @@ export class Panel {
     const top = hasFace && values ? this._pickTop(values) : null;
     if (!hasFace) this.topKey = null;
 
-    for (const k of EXPR_KEYS) {
+    for (const k of SHOWN_KEYS) {
       const r = this.rows[k];
       const pct = Math.max(0, Math.min(100, (values?.[k] ?? 0) * 100));
       r.fill.style.width = pct.toFixed(3) + '%';
@@ -73,7 +73,7 @@ export class Panel {
   /** 최고값이 두 감정 사이에서 왔다갔다하는 걸 막는 히스테리시스 */
   _pickTop(v) {
     let best = null, bv = -1;
-    for (const k of EXPR_KEYS) {
+    for (const k of SHOWN_KEYS) {
       const x = v[k] ?? 0;
       if (x > bv) { bv = x; best = k; }
     }

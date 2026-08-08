@@ -1,7 +1,7 @@
 // 표시값 다듬기: (1) 감정 보정 (2) 시간 평활
 // 둘 다 "표시" 단계에서만 적용된다. 모델이 준 값 자체를 바꿔 저장하지는 않는다.
 
-import { EXPR_KEYS } from './config.js';
+import { EXPR_KEYS, SHOWN_KEYS } from './config.js';
 
 /* ─────────────────────────────────────────────
    1) 감정 보정
@@ -19,9 +19,10 @@ export const CAL_WEIGHTS = {
   happy:     4.20,   // 웃어도 잘 안 올라가서 크게 올림
   sad:       0.34,   // 무표정일 때 같이 튀어서 누름
   angry:     1.70,   // 처음 3.0은 과했음 (안 화났는데 분노가 이김)
-  fearful:   1.80,
-  disgusted: 3.50,   // 가장 잘 안 나옴
   surprised: 2.00,   // 입 벌릴 때 확실히 뜨도록
+  // 아래 둘은 화면에서 뺐다(config.js HIDDEN_KEYS). 되살릴 때를 위해 값만 남겨둠
+  fearful:   1.80,
+  disgusted: 3.50,
 };
 
 export const CAL_LEVELS = {
@@ -35,26 +36,38 @@ export const CAL_LEVELS = {
   high: { T: 2.1, g: 1.25, floor: 0.075 },
 };
 
+/** 표시하는 감정끼리 합이 1이 되게 다시 나눈다 (화면에서 뺀 감정의 몫을 나눠 가짐) */
+function normalizeShown(out) {
+  let sum = 0;
+  for (const k of SHOWN_KEYS) sum += out[k];
+  if (sum > 0) for (const k of SHOWN_KEYS) out[k] /= sum;
+  return out;
+}
+
 export function calibrate(e, level) {
   const L = CAL_LEVELS[level] || CAL_LEVELS.off;
   const out = {};
+  for (const k of EXPR_KEYS) out[k] = 0;   // 화면에서 뺀 감정은 0으로 남는다
+
+  // 보정 끔: 모델 출력 그대로 쓰되, 표시하는 5종끼리만 다시 정규화
   if (L.T === 1 && L.g === 0) {
-    for (const k of EXPR_KEYS) out[k] = e?.[k] ?? 0;
-    return out;
+    for (const k of SHOWN_KEYS) out[k] = Math.max(0, e?.[k] ?? 0);
+    return normalizeShown(out);
   }
+
   let sum = 0;
-  for (const k of EXPR_KEYS) {
+  for (const k of SHOWN_KEYS) {
     const p = Math.max(0, e?.[k] ?? 0);
     let v = Math.pow(p, 1 / L.T) - L.floor;
-    if (v <= 0) { out[k] = 0; continue; }
+    if (v <= 0) continue;
     v *= Math.pow(CAL_WEIGHTS[k], L.g);
     out[k] = v; sum += v;
   }
   if (sum <= 0) {                       // 전부 잘려나간 예외 상황
-    for (const k of EXPR_KEYS) out[k] = e?.[k] ?? 0;
-    return out;
+    for (const k of SHOWN_KEYS) out[k] = Math.max(0, e?.[k] ?? 0);
+    return normalizeShown(out);
   }
-  for (const k of EXPR_KEYS) out[k] /= sum;
+  for (const k of SHOWN_KEYS) out[k] /= sum;
   return out;
 }
 
