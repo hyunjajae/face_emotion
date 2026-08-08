@@ -1,14 +1,19 @@
 /* ─────────────────────────────────────────────
    무대(stage) 크기 계산
-   화면 비율에 맞춰 16:9 상자를 정확히 만들어 가운데 놓는다.
-   → 녹화할 때 잘라낼 영역이 항상 같은 비율이라 편집이 편해짐
+   무대 비율을 16:9로 고정하면 영상 칸이 16:9보다 세로로 길어져서
+   영상 위아래에만 검은 띠가 생기고(웹캠은 꽉 참) 좌우가 비대칭으로 보인다.
+   그래서 무대 비율을 내용에서 거꾸로 계산한다:
+       영상 칸 16:9  +  웹캠 칸 9:16  →  무대 가로세로비 = 1.778 + 0.5625
+   둘 다 높이를 꽉 채우므로 무대 안쪽에는 남는 여백이 없다.
+   웹캠 칸은 그대로 9:16이라 숏폼용으로 바로 잘라 쓸 수 있다.
    ───────────────────────────────────────────── */
-body{ --chrome-h:56px; --pad:14px; --camw:32%; }
+body{ --chrome-h:56px; --pad:14px; --cam-ar:0.5625; }
 body.record{ --chrome-h:0px; --pad:0px; }
 
-body[data-camw="narrow"]{ --camw:26%; }
-body[data-camw="mid"]   { --camw:32%; }
-body[data-camw="wide"]  { --camw:40%; }
+/* 웹캠 칸의 가로/세로 비 */
+body[data-camw="narrow"]{ --cam-ar:0.4800; }   /* 더 좁게 */
+body[data-camw="mid"]   { --cam-ar:0.5625; }   /* 9:16 */
+body[data-camw="wide"]  { --cam-ar:0.6875; }   /* 11:16 */
 
 /* 상단 바 */
 #topbar{
@@ -34,22 +39,26 @@ body.record .chrome{ display:none !important; }
 }
 
 .stage{
+  --vid-ar: 1.777778;                                   /* 영상 칸 16:9 */
+  --stage-ar: calc(var(--vid-ar) + var(--cam-ar));
   --avail-w: calc(100vw - var(--pad) * 2);
   --avail-h: calc(100dvh - var(--chrome-h) - var(--pad) * 2);
-  width:  min(var(--avail-w), calc(var(--avail-h) * 16 / 9));
-  height: min(var(--avail-h), calc(var(--avail-w) * 9 / 16));
+  width:  min(var(--avail-w), calc(var(--avail-h) * var(--stage-ar)));
+  height: min(var(--avail-h), calc(var(--avail-w) / var(--stage-ar)));
   display:grid; gap:1px; background:var(--ui-line);   /* gap이 곧 1px 구분선 */
-  grid-template-columns: 1fr var(--camw);
+  /* 1px 구분선을 뺀 나머지를 두 칸의 가로세로비 그대로 나눠 갖는다 */
+  grid-template-columns: calc((100% - 1px) * var(--vid-ar) / var(--stage-ar)) 1fr;
   grid-template-rows: 100%;
   overflow:hidden;
 }
 
 /* ── 영상 영역: 위에 아무것도 덮지 않는다 (광고 스킵 클릭 때문) ── */
+/* 칸 자체가 이미 16:9라서 영상이 칸을 그대로 꽉 채운다 (레터박스 없음) */
 .video-area{
   position:relative; background:#000; overflow:hidden;
-  display:grid; place-items:center; min-width:0; min-height:0;
+  min-width:0; min-height:0;
 }
-.video-frame{ position:relative; width:100%; aspect-ratio:16/9; background:#000; }
+.video-frame{ position:relative; width:100%; height:100%; background:#000; }
 #ytPlayer{ position:absolute; inset:0; display:none; }
 /* YT.Player가 안쪽 div를 iframe으로 바꿔치기하므로 자식 전체에 적용 */
 #ytPlayer > *{ width:100%; height:100%; border:0; display:block; }

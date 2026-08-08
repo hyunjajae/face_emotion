@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/panel.css">
 </head>
-<body data-panel="overlay" data-lang="ko" data-fit="cover" data-camw="mid">
+<body data-panel="overlay" data-pscale="lg" data-lang="ko" data-fit="cover" data-camw="mid">
 
 <!-- ───────── 상단 컨트롤 바 (녹화 모드에서 통째로 숨김) ───────── -->
 <header class="chrome" id="topbar">
@@ -118,6 +118,11 @@
   <div class="set-row"><span class="set-lab">패널 위치</span>
     <div class="seg" id="segPanel" data-key="panel">
       <button data-v="overlay">웹캠 위</button><button data-v="side">아래 분리</button>
+    </div>
+  </div>
+  <div class="set-row"><span class="set-lab">수치 크기</span>
+    <div class="seg" id="segPscale" data-key="pscale">
+      <button data-v="sm">작게</button><button data-v="md">보통</button><button data-v="lg">크게</button><button data-v="xl">아주 크게</button>
     </div>
   </div>
   <div class="set-row"><span class="set-lab">웹캠 폭</span>

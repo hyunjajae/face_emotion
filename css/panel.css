@@ -5,9 +5,15 @@
    ───────────────────────────────────────────── */
 .cam-area{ container-type:inline-size; }
 
+/* 수치 크기: 웹캠 칸 너비의 몇 %를 기준 글자 크기로 삼을지 */
+body{ --panel-scale:4.4; }
+body[data-pscale="sm"]{ --panel-scale:2.8; }
+body[data-pscale="md"]{ --panel-scale:3.6; }
+body[data-pscale="lg"]{ --panel-scale:4.4; }
+body[data-pscale="xl"]{ --panel-scale:5.6; }
+
 .panel{
-  /* 웹캠 칸 너비의 2.6% 를 기준 글자 크기로. 1080 세로 녹화 기준 패널이 화면의 약 22%를 차지한다 */
-  font-size:clamp(10px, 2.6cqw, 20px);
+  font-size:clamp(11px, calc(var(--panel-scale) * 1cqw), 40px);
   --labw:4.4em;                       /* 라벨 칸 고정폭 → 게이지 시작점이 안 흔들림 */
 }
 body[data-lang="en"] .panel{ --labw:7.2em; }
@@ -15,11 +21,12 @@ body[data-lang="en"] .panel{ --labw:7.2em; }
 /* 웹캠 위에 겹치는 기본 모드 */
 body[data-panel="overlay"] .panel{
   position:absolute; left:0; right:0; bottom:0;
-  padding:1.15em 1.2em 1.2em;
-  /* 카드가 아니라 자막용 스크림. 아래로 갈수록 어두워지기만 한다 */
+  padding:1em 1.1em 1.05em;
+  /* 카드가 아니라 자막용 스크림. 아래로 갈수록 어두워지기만 한다.
+     밝은 벽이 배경일 때도 수치가 읽히도록 충분히 진하게 */
   background:linear-gradient(to top,
-    rgba(0,0,0,.88) 0%, rgba(0,0,0,.74) 42%, rgba(0,0,0,.40) 76%, rgba(0,0,0,0) 100%);
-  text-shadow:0 1px 3px rgba(0,0,0,.85);
+    rgba(0,0,0,.92) 0%, rgba(0,0,0,.82) 48%, rgba(0,0,0,.48) 80%, rgba(0,0,0,0) 100%);
+  text-shadow:0 1px 3px rgba(0,0,0,.9);
 }
 /* 아래로 분리하는 모드 */
 body[data-panel="side"] .cam-area{ grid-template-rows:1fr auto; }
@@ -32,8 +39,9 @@ body[data-panel="side"] .panel{
 .status{
   display:flex; align-items:center; gap:.5em;
   font-family:var(--mono);            /* 계측 readout은 고정폭으로 */
-  color:var(--fg-3); font-size:.78em; letter-spacing:.04em;
-  margin-bottom:.9em; white-space:nowrap;
+  color:var(--fg-3); font-size:.7em; letter-spacing:.04em;
+  margin-bottom:.75em; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis;
 }
 .status .dot{
   width:.5em; height:.5em; flex:none; background:var(--fg-3);
@@ -44,7 +52,7 @@ body[data-panel="side"] .panel{
 body[data-status="0"] .status{ display:none; }
 
 /* ── 7줄 게이지 ── */
-.rows{ list-style:none; margin:0; padding:0; display:grid; gap:.5em; }
+.rows{ list-style:none; margin:0; padding:0; display:grid; gap:.42em; }
 .row{
   display:grid; grid-template-columns:var(--labw) 1fr auto auto;
   align-items:center; gap:.7em;
@@ -56,7 +64,7 @@ body[data-status="0"] .status{ display:none; }
 body[data-lang="en"] .lab{ font-family:var(--mono); font-size:.76em; letter-spacing:.06em; }
 .row.top .lab{ color:var(--fg); }
 
-.bar{ position:relative; height:clamp(2px,.22em,4px); background:var(--track); overflow:hidden; }
+.bar{ position:relative; height:clamp(2px,.2em,7px); background:var(--track); overflow:hidden; }
 .fill{
   position:absolute; left:0; top:0; bottom:0; width:0;
   background:var(--fill);
@@ -65,8 +73,8 @@ body[data-lang="en"] .lab{ font-family:var(--mono); font-size:.76em; letter-spac
 .row.top .fill{ background:var(--accent); }
 
 /* 겹치기 모드에서는 밝은 영상 위에서도 보이게 대비를 올린다 */
-body[data-panel="overlay"] .bar{ background:rgba(0,0,0,.5); }
-body[data-panel="overlay"] .fill{ background:rgba(255,255,255,.55); }
+body[data-panel="overlay"] .bar{ background:rgba(0,0,0,.62); }
+body[data-panel="overlay"] .fill{ background:rgba(255,255,255,.68); }
 body[data-panel="overlay"] .row.top .fill{ background:var(--accent); }
 
 .val{

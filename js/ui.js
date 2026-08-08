@@ -7,6 +7,7 @@ export function applySettings(app) {
   const b = document.body;
   b.dataset.lang   = s.lang;
   b.dataset.panel  = s.panel;
+  b.dataset.pscale = s.pscale;
   b.dataset.fit    = s.fit;
   b.dataset.camw   = s.camw;
   b.dataset.status = String(s.showStatus);

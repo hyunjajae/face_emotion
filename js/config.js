@@ -24,8 +24,9 @@ export const DEFAULTS = {
   cal: 'mid',        // 감정 쏠림 보정 세기 (tune.js CAL_LEVELS)
   lang: 'ko',
   panel: 'overlay',  // overlay | side
+  pscale: 'lg',      // 수치 크기 sm | md | lg | xl
   fit: 'cover',      // 웹캠 채우기 | 전체 보기
-  camw: 'mid',       // 웹캠 칸 너비
+  camw: 'mid',       // 웹캠 칸 가로세로비
   showStatus: 1,
   deviceId: '',
 };
